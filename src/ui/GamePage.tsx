@@ -149,6 +149,7 @@ export function GamePage({ go, variant, mode, name }: Props) {
       </header>
 
       <main className="game-layout">
+        <h1 className="sr-only">Bàn đấu {gameName}</h1>
         <div className="col-left">
           <div role="status" className={`status inline ${statusCls}`}>{statusText}</div>
           <div className={`strip${blackTurn ? ' active-black' : ''}`}>
