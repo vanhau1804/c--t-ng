@@ -55,6 +55,48 @@ describe('sảnh', () => {
   });
 });
 
+describe('chuyển màn hình', () => {
+  it('bấm thẻ Cờ Tướng vào được bàn đấu mà không cần trình duyệt xử lý liên kết #', () => {
+    render(<App />);
+    // liên kết kiểu #... có thể làm trang trống trong khung nhúng, nên ứng dụng phải tự chặn và chuyển bằng mã
+    const notPrevented = fireEvent.click(screen.getByRole('link', { name: /Cờ Tướng/ }));
+    expect(notPrevented).toBe(false);
+    expect(screen.getAllByRole('button', { name: 'Mã Đỏ' })).toHaveLength(2);
+    const back = fireEvent.click(screen.getByRole('link', { name: /Về sảnh/ }));
+    expect(back).toBe(false);
+    expect(screen.getByRole('heading', { name: 'Chọn chế độ và loại cờ' })).toBeTruthy();
+  });
+
+  it('vẫn chơi được khi môi trường không cho đổi địa chỉ', () => {
+    render(<App />);
+    const spy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    // mô phỏng việc gán location.hash bị từ chối
+    const loc = window.location;
+    const orig = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(loc), 'hash');
+    if (orig) {
+      Object.defineProperty(Object.getPrototypeOf(loc), 'hash', {
+        configurable: true,
+        get: orig.get,
+        set() {
+          throw new Error('SecurityError');
+        }
+      });
+    }
+    fireEvent.click(screen.getByRole('link', { name: /Cờ Úp/ }));
+    expect(screen.getAllByRole('button', { name: /^Quân úp/ })).toHaveLength(30);
+    if (orig) Object.defineProperty(Object.getPrototypeOf(loc), 'hash', orig);
+    spy.mockRestore();
+  });
+
+  it('chuyển sang chế độ 2 người rồi vào bàn đấu', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: '2 người' }));
+    fireEvent.click(screen.getByRole('link', { name: /Cờ Tướng/ }));
+    expect(screen.queryByText('Độ khó của máy')).toBeNull();
+    expect(screen.getAllByRole('button', { name: 'Mã Đỏ' })).toHaveLength(2);
+  });
+});
+
 describe('bàn đấu Cờ Tướng', () => {
   it('có đủ 32 quân và chọn quân thì hiện nước đi hợp lệ', () => {
     go('#co-tuong-may');

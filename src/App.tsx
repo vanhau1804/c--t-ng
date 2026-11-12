@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Variant } from './engine/controller';
+import { type Go } from './nav';
 import { load, save } from './storage';
 import { GamePage, type Mode } from './ui/GamePage';
 import { Lobby } from './ui/Lobby';
@@ -16,13 +17,32 @@ export function parseHash(hash: string): Route | null {
   return { variant: m[1] === 'co-up' ? 'hidden' : 'classic', mode: m[2] as Mode };
 }
 
+const readHash = () => {
+  try {
+    return window.location.hash;
+  } catch {
+    return '';
+  }
+};
+
 export function App() {
-  const [hash, setHash] = useState(() => window.location.hash);
+  const [hash, setHash] = useState(readHash);
   const [name, setName] = useState(() => load<string>('hgtk:name', 'Kỳ thủ 01'));
+
+  // Màn hình hiện tại nằm trong bộ nhớ. Địa chỉ chỉ được đồng bộ phụ để làm nút Back và liên kết chia sẻ.
+  const go: Go = useCallback((h) => {
+    setHash(h);
+    window.scrollTo(0, 0);
+    try {
+      if (readHash() !== h) window.location.hash = h;
+    } catch {
+      /* môi trường không cho đổi địa chỉ thì vẫn chơi bình thường */
+    }
+  }, []);
 
   useEffect(() => {
     const onHash = () => {
-      setHash(window.location.hash);
+      setHash(readHash());
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', onHash);
@@ -34,6 +54,7 @@ export function App() {
     document.title = 'Hoàng Gia Tướng Kỳ';
     return (
       <Lobby
+        go={go}
         name={name}
         onName={(n) => {
           setName(n);
@@ -42,5 +63,5 @@ export function App() {
       />
     );
   }
-  return <GamePage key={hash} variant={route.variant} mode={route.mode} name={name} />;
+  return <GamePage key={hash} go={go} variant={route.variant} mode={route.mode} name={name} />;
 }

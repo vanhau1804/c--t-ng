@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import { NavLink, type Go } from '../nav';
 import { DecoBoard } from './BoardView';
 import type { Mode } from './GamePage';
 
 interface Props {
+  go: Go;
   name: string;
   onName: (n: string) => void;
 }
 
-export function Lobby({ name, onName }: Props) {
+export function Lobby({ go, name, onName }: Props) {
   const [mode, setMode] = useState<Mode>('may');
   return (
     <>
@@ -43,7 +45,7 @@ export function Lobby({ name, onName }: Props) {
           <div className="section">
             <div className="eyebrow">Loại cờ</div>
             <div className="cards">
-              <a className="game-card primary" href={`#co-tuong-${mode}`}>
+              <NavLink className="game-card primary" to={`#co-tuong-${mode}`} go={go}>
                 <div className="card-icons">
                   <div className="icon-pair">
                     <div className="disc red">帥</div>
@@ -56,8 +58,8 @@ export function Lobby({ name, onName }: Props) {
                   <div className="card-desc">Quân lật ngửa, bài binh bố trận</div>
                 </div>
                 <div className="card-cta">Vào bàn đấu</div>
-              </a>
-              <a className="game-card" href={`#co-up-${mode}`}>
+              </NavLink>
+              <NavLink className="game-card" to={`#co-up-${mode}`} go={go}>
                 <div className="card-icons">
                   <div className="icon-pair">
                     <div className="disc unknown">?</div>
@@ -69,7 +71,7 @@ export function Lobby({ name, onName }: Props) {
                   <div className="card-desc">Quân úp mặt, lật dần theo từng nước</div>
                 </div>
                 <div className="card-cta">Vào bàn đấu</div>
-              </a>
+              </NavLink>
             </div>
           </div>
         </div>

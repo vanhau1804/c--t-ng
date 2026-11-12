@@ -2,6 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { Level } from '../engine/ai';
 import { GameController, TIMES, type Result, type Variant } from '../engine/controller';
 import { createSound } from '../engine/sound';
+import { NavLink, type Go } from '../nav';
 import { load, save } from '../storage';
 import { BoardView } from './BoardView';
 import { CheckBanner, ResultOverlay } from './Overlays';
@@ -35,12 +36,13 @@ const reducedMotion = () => {
 };
 
 interface Props {
+  go: Go;
   variant: Variant;
   mode: Mode;
   name: string;
 }
 
-export function GamePage({ variant, mode, name }: Props) {
+export function GamePage({ go, variant, mode, name }: Props) {
   const vsAI = mode === 'may';
   const winsKey = `hgtk:wins:${variant}`;
   const [wins, setWins] = useState<Wins>(() => load<Wins>(winsKey, { you: 0, cpu: 0 }));
@@ -142,7 +144,7 @@ export function GamePage({ variant, mode, name }: Props) {
             <div className="logo" aria-hidden="true">帥</div>
             <div className="brand-name">Hoàng Gia Tướng Kỳ</div>
           </div>
-          <a className="back-link" href="#">← Về sảnh</a>
+          <NavLink className="back-link" to="" go={go}>← Về sảnh</NavLink>
         </div>
       </header>
 
